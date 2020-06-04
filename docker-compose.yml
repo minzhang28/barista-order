@@ -1,0 +1,15 @@
+version: '3'
+services:
+  barista-api:
+    image: barista-api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "5000:5000"
+  redis:
+    image: redis
+
