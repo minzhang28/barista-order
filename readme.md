@@ -8,8 +8,8 @@
 · Baristas can see the orders organized by pickup time for their coffee shop 
 
 ### Know issues / To do lists
-1. The order API (on get) only return the drinks by latest pickup time, this is due to the old redis API we are user. The latest redis API as the `nx=True` parameter to add new item instead of updating existing one in the sorted set, which will meet this requirement. The signature change of the API causes some issues thus I kept using the old API to get the MVP implemented first
-2. With the same reason as #1, I haven't implement the API for users to get all the orders they placed. Also stores can get the order history (total count of each item on menu) once #1 is fixec
+1. The order API (on get) only return the drinks by latest pickup time, this is due to the old redis API we are using. The latest redis API as the `nx=True` parameter to add new item instead of updating existing one in the sorted set, which will meet this requirement. The signature change of the API causes some issues thus I kept using the old API to get the MVP implemented first
+2. With the same reason as #1, I haven't implemented the API for users to get all the orders they placed. Also stores can get the order history (total count of each item on menu) once #1 is fixed
 3. Data verification is not implemented yet, there's no verification on the payload at the moment, planning to use decorator to valid the payload
 4. Unit tests needs to be added
 
@@ -41,7 +41,7 @@ I used redis for this use case for a few reasons
         Return all the registered stores with their menus
    - POST (status 201 on success):
         Register a store with name and menus
-          - Request Payload
+        - Request Payload
           
             ```
             {
@@ -52,11 +52,12 @@ I used redis for this use case for a few reasons
             }
             ```
 #### Order API 
-- GET (status 200 on success) : 
+- /v1/order
+    - GET (status 200 on success) : 
         - Parameter: ?store=${store-name}
         Return the orders of the store with pick up time (timestamp)
     
-- POST (status 201 on success) :
+    - POST (status 201 on success) :
       Place are store with details, payload see below:
       
         ```json
@@ -71,17 +72,38 @@ I used redis for this use case for a few reasons
         }
         ```
 
+#### Health Check
+- /v1/health
+    - GET (status 200 on success):
+      return the health check status
+      ```json
+        {
+            "status": "healthy"
+        }
+      ```
+
 
 ### Build and Run
+- Configuration
+
+  If you want to customize the redis connection, please set the below env vars to the correct values
+    - REDIS_HOST
+    - REDIS_PORT
+
+
 - Docker Compose
+
   This API is packaged in docker image, to run it, please issue the command below in the project root folder 
-  `docker-compose up -d`
+  
+  ```docker-compose up -d```
+  
   once it's running, you can access the API via your browser / API test tool (postman, etc) by the url 
    - `localhost:5000/v1/store` 
    - `localhost:5000/v1/order`
    - `localhost:5000/v1/health`
   
 - Gunicorn:
+
   If you want to make code changes and run it, you can directly run with command below
   `gunicorn -b 0.0.0.0:5000 app:app`
   
